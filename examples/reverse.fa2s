@@ -1,0 +1,9 @@
+# Reverse input using stack A.
+.start start
+
+start     : eps, A=empty, B=empty -> ; read_all
+read_all  : any, A=*, B=* -> read, pushA:last ; read_all
+read_all  : eof, A=*, B=* -> ; write_back
+
+write_back: eps, A=empty, B=* -> halt:accept
+write_back: eps, A=*,     B=* -> popA:last, write:last ; write_back

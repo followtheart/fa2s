@@ -1,0 +1,7 @@
+# Echo: copy input to output, then accept.
+.start start
+
+start : eps, A=empty, B=empty -> ; loop
+
+loop  : any, A=*, B=* -> read, write:last ; loop
+loop  : eof, A=*, B=* -> halt:accept

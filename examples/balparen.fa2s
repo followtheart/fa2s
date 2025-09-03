@@ -1,0 +1,12 @@
+# Balanced parentheses: accepts iff parentheses are balanced (other chars ignored).
+.start start
+
+start : eps, A=empty, B=empty -> ; loop
+
+loop  : lit:'(', A=*,        B=* -> read, pushA:last ; loop
+loop  : lit:')', A=lit:'(',  B=* -> read, popA ; loop
+loop  : lit:')', A=empty,    B=* -> read, halt:reject
+loop  : any,     A=*,        B=* -> read ; loop
+
+loop  : eof,     A=empty,    B=* -> write:"ok\n",  halt:accept
+loop  : eof,     A=*,        B=* -> write:"err\n", halt:reject

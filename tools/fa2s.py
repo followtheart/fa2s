@@ -365,8 +365,22 @@ def main():
     ap.add_argument('--trace', action='store_true')
     args = ap.parse_args()
 
-    with open(args.program, 'r', encoding='utf-8') as f:
-        prog_text = f.read()
+    # Try to read the file with different encodings
+    prog_text = None
+    encodings_to_try = ['utf-8', 'utf-16', 'utf-16-le', 'utf-16-be', 'latin-1']
+    
+    for encoding in encodings_to_try:
+        try:
+            with open(args.program, 'r', encoding=encoding) as f:
+                prog_text = f.read()
+            break
+        except UnicodeDecodeError:
+            continue
+    
+    if prog_text is None:
+        print(f"Error: Could not decode file '{args.program}' with any common encoding", file=sys.stderr)
+        sys.exit(1)
+    
     program = parse_program(prog_text)
 
     if args.input_str is not None:

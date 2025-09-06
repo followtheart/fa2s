@@ -1,0 +1,5 @@
+# Simple test: read one character and write it
+.start start
+
+start : any, A=*, B=* -> read, write:last ; start
+start : eof, A=*, B=* -> halt:accept

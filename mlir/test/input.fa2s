@@ -1,0 +1,9 @@
+# Test input for FA2S to MLIR translation
+# This is a simple echo program
+
+.start start
+
+start : eps, A=empty, B=empty -> ; loop
+
+loop  : any, A=*, B=* -> read, write:last ; loop
+loop  : eof, A=*, B=* -> halt:accept

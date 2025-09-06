@@ -1,0 +1,89 @@
+# FA2S (Finite Automaton with 2 Stacks) - Formal Grammar in BNF
+# 
+# FA2S is a minimalistic language based on the computational model of 
+# "finite automaton + two unbounded stacks (A, B)". It uses state-transition-action
+# style programming with deterministic guard matching.
+
+# Top-level program structure
+<program> ::= <line>*
+
+<line> ::= <directive> | <transition> | <comment> | <empty_line>
+
+# Directives
+<directive> ::= ".start" <state_name>
+
+# Comments and empty lines
+<comment> ::= "#" <any_char>* <newline>
+<empty_line> ::= <whitespace>* <newline>
+
+# Transitions
+<transition> ::= <state_name> ":" <guard> "->" <action_list> ";" <next_state>
+               | <state_name> ":" <guard> "->" <action_list> ";" <halt_action>
+
+# Guards (input pattern + stack top patterns)
+<guard> ::= <input_guard> "," "A=" <stack_guard> "," "B=" <stack_guard>
+
+<input_guard> ::= "eps" | "eof" | "any" | "lit:" <char_literal>
+
+<stack_guard> ::= "*" | "empty" | "lit:" <char_literal>
+
+# Actions
+<action_list> ::= <action> | <action> "," <action_list>
+
+<action> ::= <input_action> | <output_action> | <stack_action> | <halt_action>
+
+<input_action> ::= "read"
+
+<output_action> ::= "write:" <string_literal>
+                  | "write:last"
+
+<stack_action> ::= "pushA:" <value>
+                 | "pushB:" <value>
+                 | "popA"
+                 | "popB"
+                 | "popA:last"
+                 | "popB:last"
+
+<value> ::= <char_literal> | "last"
+
+<halt_action> ::= "halt:accept" | "halt:reject"
+
+# Next state (for non-halting transitions)
+<next_state> ::= <state_name>
+
+# Literals and identifiers
+<state_name> ::= <identifier>
+
+<identifier> ::= <letter> <identifier_char>*
+<identifier_char> ::= <letter> | <digit> | "_"
+
+<char_literal> ::= "'" <char> "'"
+<char> ::= <printable_char> | <escape_sequence>
+<escape_sequence> ::= "\\n" | "\\t" | "\\r" | "\\\\" | "\\'" | "\\\""
+
+<string_literal> ::= "\"" <string_char>* "\""
+<string_char> ::= <printable_char_except_quote> | <string_escape_sequence>
+<string_escape_sequence> ::= "\\n" | "\\t" | "\\r" | "\\\\" | "\\\""
+
+# Character classes
+<letter> ::= "a" | "b" | ... | "z" | "A" | "B" | ... | "Z"
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<printable_char> ::= <letter> | <digit> | <symbol>
+<printable_char_except_quote> ::= <letter> | <digit> | <symbol_except_quote>
+<symbol> ::= " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
+<symbol_except_quote> ::= " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
+<any_char> ::= <printable_char> | <tab> | <space>
+<whitespace> ::= <space> | <tab>
+<space> ::= " "
+<tab> ::= "\t"
+<newline> ::= "\n" | "\r\n"
+
+# Grammar Notes:
+# 1. The language is deterministic - transitions are matched in source order,
+#    first match wins.
+# 2. State names must be valid identifiers.
+# 3. Default start state is "start" if .start directive is omitted.
+# 4. Guards specify conditions on input position and stack tops.
+# 5. Actions are executed sequentially before transitioning to next state.
+# 6. halt:accept/halt:reject terminate the program immediately.
+# 7. Runtime errors occur on: empty stack pop, read at EOF, no matching transition.
